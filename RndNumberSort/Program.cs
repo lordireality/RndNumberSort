@@ -32,6 +32,7 @@ namespace RndNumberSort
             var _magicStuffClass = new MagicStuffClass();
             while (true)
             {
+                Console.Clear();
                 Console.WriteLine(_consoleHelper.getCredentials());
                 var sortTypeChoice = new KeyBoardInput_DTO() { succed = false, value = "" };
                 while (!sortTypeChoice.succed)
@@ -57,12 +58,13 @@ namespace RndNumberSort
                     default: throw new Exception();
                 }
                 sortManager.Run();
+                Console.WriteLine("Отсортированный массив:");
                 Console.WriteLine(_consoleHelper.buildTwoColOutputTable(sortManager.getOutputArray()));
-
-                
-
+                Console.WriteLine("Кол-во перестановок: " + sortManager.swapCount.ToString());
+                Console.WriteLine("Кол-во сравнений: " + sortManager.compareCount.ToString());
 
                 Console.ReadLine();
+                
             }
         }
 
@@ -372,6 +374,8 @@ namespace RndNumberSort
             internal int[] tempArray;
             internal int[] outputArray;
             internal bool sortExecuted = false;
+            internal int compareCount = 0;
+            internal int swapCount = 0;
             /// <summary>
             /// Класс конструктор
             /// </summary>
@@ -431,23 +435,25 @@ namespace RndNumberSort
             /// </summary>
             public void Run()
             {
-                int x;
-                int j;
-                for (int i = 1; i < this.tempArray.Length; i++)
+                for (int i = 1; i < tempArray.Length; i++)
                 {
-                    x = this.tempArray[i];
-                    j = i;
-                    while (j > 0 && this.tempArray[j - 1] > x)
+                    int key = tempArray[i];
+                    int j = i - 1;
+
+                    while (j >= 0 && tempArray[j] > key)
                     {
-                        int temp = this.tempArray[i];
-                        this.tempArray[i] = this.tempArray[j];
-                        this.tempArray[j] = temp;
-                        j -= 1;
+                        tempArray[j + 1] = tempArray[j];
+                        j--;
+                        compareCount++;
+                        swapCount++;
                     }
-                    this.tempArray[j] = x;
+
+                    tempArray[j + 1] = key;
+                    swapCount++;
                 }
-                this.sortExecuted = true;
+                
                 this.outputArray = this.tempArray;
+                this.sortExecuted = true;
             }
         }
         /// <summary>
@@ -469,7 +475,29 @@ namespace RndNumberSort
             /// </summary>
             public void Run()
             {
-                return;
+                for (int i = 0; i < tempArray.Length - 1; i++)
+                {
+                    int minIdx = i;
+
+                    for (int j = i + 1; j < tempArray.Length; j++)
+                    {
+                        compareCount++;
+                        if (tempArray[j] < tempArray[minIdx])
+                        {
+                            minIdx = j;
+                        }
+                    }
+
+                    if (minIdx != i)
+                    {
+                        int temp = tempArray[i];
+                        tempArray[i] = tempArray[minIdx];
+                        tempArray[minIdx] = temp;
+
+                        swapCount++;
+                    }
+                }
+                this.outputArray = this.tempArray;
                 this.sortExecuted = true;
             }
         }
