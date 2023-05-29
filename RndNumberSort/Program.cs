@@ -37,8 +37,8 @@ namespace RndNumberSort
                 var sortTypeChoice = new KeyBoardInput_DTO() { succed = false, value = "" };
                 while (!sortTypeChoice.succed)
                 {
-                    Console.WriteLine(_consoleHelper.getPrettyBox("Выберите тип для сортировки: 1 - Вставка, 2 - Отбор"));
-                    sortTypeChoice = InputController("Ваш выбор:", new Dictionary<string, string>() { { "typeof", "int" }, { "minVal", "0" }, { "maxVal", "3" } });
+                    Console.WriteLine(_consoleHelper.getPrettyBox("Выберите тип для сортировки: 1 - Вставка, 2 - Отбор, 3 - Оба варианта (для сравнения работы)"));
+                    sortTypeChoice = InputController("Ваш выбор:", new Dictionary<string, string>() { { "typeof", "int" }, { "minVal", "0" }, { "maxVal", "4" } });
                 }
                 var arraySizeChoice = new KeyBoardInput_DTO() { succed = false, value = "" };
                 Console.WriteLine(_consoleHelper.getPrettyBox3Rows(new string[] { "Введите размер массива ", "Предлагаем размеры массива согласно варианту: ", string.Join(", ", _magicStuffClass._possibleSizes.Select(i => i.ToString()).ToArray()) }));
@@ -48,21 +48,47 @@ namespace RndNumberSort
                     arraySizeChoice = InputController("Размер массива:", new Dictionary<string, string>() { { "typeof", "int" }, { "minVal", "0" }, { "maxVal", int.MaxValue.ToString() } });
                 }
                 var arrayToSort = _magicStuffClass.getArray(Int32.Parse(arraySizeChoice.value));
+                //arrayToSort.CopyTo(arrayToSort2, 0);
+
                 Console.WriteLine("Ваш массив:");
                 Console.WriteLine(_consoleHelper.buildTwoColOutputTable(arrayToSort));
-                dynamic sortManager;
+                dynamic sortManagerInsertion = null;
+                dynamic sortManagerSelection = null;
                 switch (sortTypeChoice.value)
                 {
-                    case "1": sortManager = new SortManager.InsertionSort(arrayToSort); break;
-                    case "2": sortManager = new SortManager.SelectionSort(arrayToSort); break;
+                    case "1": sortManagerInsertion = new SortManager.InsertionSort(arrayToSort); break;
+                    case "2": sortManagerSelection = new SortManager.SelectionSort(arrayToSort); break;
+                    case "3": sortManagerInsertion = new SortManager.InsertionSort(arrayToSort); sortManagerSelection = new SortManager.SelectionSort(arrayToSort);  break;
                     default: throw new Exception();
                 }
-                sortManager.Run();
-                Console.WriteLine("Отсортированный массив:");
-                Console.WriteLine(_consoleHelper.buildTwoColOutputTable(sortManager.getOutputArray()));
-                Console.WriteLine("Кол-во перестановок: " + sortManager.swapCount.ToString());
-                Console.WriteLine("Кол-во сравнений: " + sortManager.compareCount.ToString());
 
+                if(sortManagerInsertion != null)
+                {
+                    sortManagerInsertion.Run();
+                    Console.WriteLine(sortManagerInsertion.sortName);
+                    Console.WriteLine("Отсортированный массив:");
+                    Console.WriteLine(_consoleHelper.buildTwoColOutputTable(sortManagerInsertion.getOutputArray()));
+                    Console.WriteLine("Кол-во перестановок: " + sortManagerInsertion.swapCount.ToString());
+                    Console.WriteLine("Кол-во сравнений: " + sortManagerInsertion.compareCount.ToString());
+                    Console.WriteLine("\n\n");
+                }
+                if (sortManagerSelection != null)
+                {
+                    sortManagerSelection.Run();
+                    Console.WriteLine(sortManagerSelection.sortName);
+                    Console.WriteLine("Отсортированный массив:");
+                    Console.WriteLine(_consoleHelper.buildTwoColOutputTable(sortManagerSelection.getOutputArray()));
+                    Console.WriteLine("Кол-во перестановок: " + sortManagerSelection.swapCount.ToString());
+                    Console.WriteLine("Кол-во сравнений: " + sortManagerSelection.compareCount.ToString());
+                    Console.WriteLine("\n\n");
+                }
+                Console.WriteLine("для таблицы:");
+                Console.WriteLine("Кол-во сравнений: " + sortManagerInsertion.compareCount.ToString());
+                Console.WriteLine("Кол-во сравнений: " + sortManagerSelection.compareCount.ToString());
+                Console.WriteLine("Кол-во перестановок: " + sortManagerInsertion.swapCount.ToString());
+       
+                Console.WriteLine("Кол-во перестановок: " + sortManagerSelection.swapCount.ToString());
+                
                 Console.ReadLine();
                 
             }
@@ -368,7 +394,7 @@ namespace RndNumberSort
         /// <summary>
         /// Базовый класс сортировщиков массивов
         /// </summary>
-        public class SortBase
+        public abstract class SortBase
         {
             internal int[] inputArray;
             internal int[] tempArray;
@@ -376,6 +402,8 @@ namespace RndNumberSort
             internal bool sortExecuted = false;
             internal int compareCount = 0;
             internal int swapCount = 0;
+            internal string SortName = "%название типа сортировки%";
+            public string sortName { get { return SortName; }}
             /// <summary>
             /// Класс конструктор
             /// </summary>
@@ -427,8 +455,11 @@ namespace RndNumberSort
             /// <param name="inputArray">Массив для сортировки</param>
             public InsertionSort(int[] inputArray)
             {
-                this.inputArray = inputArray;
-                this.tempArray = inputArray;
+                this.SortName = "Сортировка методом вставки";
+                this.inputArray = new int[inputArray.Length];
+                inputArray.CopyTo(this.inputArray, 0);
+                this.tempArray = new int[inputArray.Length];
+                inputArray.CopyTo(this.tempArray, 0);
             }
             /// <summary>
             /// Запустить сортировку
@@ -451,8 +482,9 @@ namespace RndNumberSort
                     tempArray[j + 1] = key;
                     swapCount++;
                 }
+                this.outputArray = new int[tempArray.Length];
+                tempArray.CopyTo(outputArray, 0);
                 
-                this.outputArray = this.tempArray;
                 this.sortExecuted = true;
             }
         }
@@ -467,14 +499,18 @@ namespace RndNumberSort
             /// <param name="inputArray">Массив для сортировки</param>
             public SelectionSort(int[] inputArray)
             {
-                this.inputArray = inputArray;
-                this.tempArray = inputArray;
+                this.SortName = "Сортировка методом отбора";
+                this.inputArray = new int[inputArray.Length];
+                inputArray.CopyTo(this.inputArray, 0);
+                this.tempArray = new int[inputArray.Length];
+                inputArray.CopyTo(this.tempArray, 0);
             }
             /// <summary>
             /// Запустить сортировку
             /// </summary>
             public void Run()
             {
+                
                 for (int i = 0; i < tempArray.Length - 1; i++)
                 {
                     int minIdx = i;
@@ -484,20 +520,24 @@ namespace RndNumberSort
                         compareCount++;
                         if (tempArray[j] < tempArray[minIdx])
                         {
+                            
                             minIdx = j;
+                            
                         }
                     }
-
+                    
                     if (minIdx != i)
                     {
                         int temp = tempArray[i];
                         tempArray[i] = tempArray[minIdx];
                         tempArray[minIdx] = temp;
-
                         swapCount++;
+
                     }
                 }
-                this.outputArray = this.tempArray;
+                this.outputArray = new int[tempArray.Length];
+                tempArray.CopyTo(outputArray, 0);
+                //this.outputArray = this.tempArray;
                 this.sortExecuted = true;
             }
         }
