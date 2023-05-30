@@ -13,13 +13,7 @@ using System.Web;
 
 namespace RndNumberSort
 {
-    /*
-     Пример того, как можно адово Перепроектировать код, на ровном месте.
-    Прога сортирует двумя способами - Отбор/Вставка, однако, вы можете добавить свой способ сортировки
-    в классе SortManager, унаследовавшись от SortBase
-     
-     
-     */
+  
     internal class Program
     {
         /// <summary>
@@ -466,11 +460,21 @@ namespace RndNumberSort
             /// </summary>
             public void Run()
             {
+                //int j = 0;
                 for (int i = 1; i < tempArray.Length; i++)
                 {
                     int key = tempArray[i];
                     int j = i - 1;
 
+                    /*for(j = i; j > 0 && key < tempArray[j - 1]; j--)
+                    {
+                        tempArray[j] = tempArray[j - 1];
+                        swapCount++;
+                    }
+                    tempArray[j] = key;*/
+
+
+                    compareCount++;
                     while (j >= 0 && tempArray[j] > key)
                     {
                         tempArray[j + 1] = tempArray[j];
@@ -480,8 +484,9 @@ namespace RndNumberSort
                     }
 
                     tempArray[j + 1] = key;
-                    swapCount++;
+
                 }
+                compareCount = compareCount * ((compareCount - 1) / 2);
                 this.outputArray = new int[tempArray.Length];
                 tempArray.CopyTo(outputArray, 0);
                 
