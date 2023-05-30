@@ -460,19 +460,10 @@ namespace RndNumberSort
             /// </summary>
             public void Run()
             {
-                //int j = 0;
                 for (int i = 1; i < tempArray.Length; i++)
                 {
                     int key = tempArray[i];
                     int j = i - 1;
-
-                    /*for(j = i; j > 0 && key < tempArray[j - 1]; j--)
-                    {
-                        tempArray[j] = tempArray[j - 1];
-                        swapCount++;
-                    }
-                    tempArray[j] = key;*/
-
 
                     compareCount++;
                     while (j >= 0 && tempArray[j] > key)
@@ -486,7 +477,7 @@ namespace RndNumberSort
                     tempArray[j + 1] = key;
 
                 }
-                compareCount = compareCount * ((compareCount - 1) / 2);
+                
                 this.outputArray = new int[tempArray.Length];
                 tempArray.CopyTo(outputArray, 0);
                 
